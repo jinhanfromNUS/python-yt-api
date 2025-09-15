@@ -8,10 +8,9 @@ app = FastAPI()
 from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
-#     "http://localhost:3000",  # Your Next.js development server
+    "http://localhost:3000",  # Your Next.js development server
 #     # Add your production frontend URL here if you deploy
-#     "https://music-player-frontend-two-beta.vercel.app"
-    "*"
+    "https://music-player-frontend-two-beta.vercel.app"
 ]
 
 app.add_middleware(
