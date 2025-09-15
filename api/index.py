@@ -7,11 +7,7 @@ app = FastAPI()
 # Add CORS middleware to allow requests from your Next.js app
 from fastapi.middleware.cors import CORSMiddleware
 
-origins = [
-    "http://localhost:3000",  # Your Next.js development server
-#     # Add your production frontend URL here if you deploy
-    "https://music-player-frontend-two-beta.vercel.app"
-]
+origins = ["*"] # Allow all origins
 
 app.add_middleware(
     CORSMiddleware,
