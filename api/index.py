@@ -28,7 +28,7 @@ async def get_audio_url(url: str):
     try:
         # pytubefix expects a clean URL
         decoded_url = unquote(url)
-        yt = YouTube(decoded_url)
+        yt = YouTube(decoded_url, use_po_token=True)
 
         # Filter for audio-only streams, order by bitrate descending, and get the first one
         audio_stream = yt.streams.filter(only_audio=True).order_by('abr').desc().first()
