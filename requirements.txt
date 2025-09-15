@@ -1,2 +1,2 @@
 fastapi
-pytubefix
+git+https://github.com/JuanBindez/pytubefix.git
