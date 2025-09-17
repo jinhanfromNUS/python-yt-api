@@ -1,2 +1,2 @@
 fastapi
-yt-dlp
+pytubefix
