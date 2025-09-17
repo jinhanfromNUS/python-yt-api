@@ -1,2 +1,2 @@
 fastapi
-git+https://github.com/JuanBindez/pytubefix.git
+yt-dlp

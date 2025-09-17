@@ -1,13 +1,11 @@
 from fastapi import FastAPI, HTTPException
-from pytubefix import YouTube
-from urllib.parse import unquote
+from fastapi.middleware.cors import CORSMiddleware
+import yt_dlp
 
 app = FastAPI()
 
-# Add CORS middleware to allow requests from your Next.js app
-from fastapi.middleware.cors import CORSMiddleware
-
-origins = ["*"] # Allow all origins
+# Your CORS policy is correct for the proxy setup.
+origins = ["*"] 
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,25 +17,30 @@ app.add_middleware(
 
 @app.get("/api/get_audio_url")
 async def get_audio_url(url: str):
-    """
-    Takes a YouTube URL and returns a direct URL for the best audio stream.
-    """
     if not url:
         raise HTTPException(status_code=400, detail="URL parameter is required")
 
+    # Options for yt-dlp: we want the best audio-only stream
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'quiet': True,
+        'no_warnings': True,
+        'extract_flat': True,  # Don't download, just get the info
+        'force_generic_extractor': True
+    }
+
     try:
-        # pytubefix expects a clean URL
-        decoded_url = unquote(url)
-        yt = YouTube(decoded_url)
-        # Filter for audio-only streams, order by bitrate descending, and get the first one
-        audio_stream = yt.streams.filter(only_audio=True).order_by('abr').desc().first()
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            
+            # The URL for the best audio stream is usually in the 'url' key
+            audio_url = info.get('url')
 
-        if not audio_stream:
-            raise HTTPException(status_code=404, detail="No suitable audio stream found.")
-
-        print(f"pytubefix found audio URL for itag {audio_stream.itag}")
-        return {"audioUrl": audio_stream.url}
+            if not audio_url:
+                raise HTTPException(status_code=404, detail="No suitable audio stream found by yt-dlp.")
+            
+            return {"audioUrl": audio_url}
 
     except Exception as e:
-        print(f"pytubefix failed for URL: {url}", str(e))
-        raise HTTPException(status_code=500, detail=f"Failed to get audio stream using pytubefix: {str(e)}")
+        print(f"yt-dlp failed for URL: {url}", str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to get audio stream using yt-dlp: {str(e)}")
